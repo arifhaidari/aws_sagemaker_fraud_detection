@@ -10,3 +10,9 @@ This is a simulated credit card transaction dataset containing legitimate and fr
 
 Source of Simulation
 This was generated using Sparkov Data Generation | Github tool created by Brandon Harris. This simulation was run for the duration - 1 Jan 2019 to 31 Dec 2020. The files were combined and converted into a standard format.
+
+Problem Definition
+Objective: The goal of this project is to detect fraudulent transactions using machine learning techniques. This is a binary classification problem where the model predicts whether a transaction is fraud (is_fraud=1) or legitimate (is_fraud=0).
+Target Variable: is_fraud (1 = fraud, 0 = legitimate or non-fraud)
+
+Algorithms used for modeling:
