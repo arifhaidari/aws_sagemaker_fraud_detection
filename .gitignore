@@ -2,3 +2,5 @@
 data/fraud_data.csv
 data/train.csv
 data/test.csv
+
+.vscode/
