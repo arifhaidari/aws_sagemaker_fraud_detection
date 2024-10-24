@@ -1,48 +1,111 @@
-# Deploying Machine Learning Model (Fraud Detection) - AWS SageMaker (Under Development)
+# Deploying Machine Learning Model (Fraud Detection) - AWS SageMaker
 
-the purpose of this project is to develop the model and then deploy in the AWS Cloud Environment
+## Project Overview
 
-Dataset:
-https://www.kaggle.com/datasets/mlg-ulb/creditcardfraud
-
-About the Dataset
-This is a simulated credit card transaction dataset containing legitimate and fraud transactions from the duration 1st Jan 2019 - 31st Dec 2020. It covers credit cards of 1000 customers doing transactions with a pool of 800 merchants.
-
-Source of Simulation
-This was generated using Sparkov Data Generation | Github tool created by Brandon Harris. This simulation was run for the duration - 1 Jan 2019 to 31 Dec 2020. The files were combined and converted into a standard format.
-
-Problem Definition
-Objective: The goal of this project is to detect fraudulent transactions using machine learning techniques. This is a binary classification problem where the model predicts whether a transaction is fraud (is_fraud=1) or legitimate (is_fraud=0).
-Target Variable: is_fraud (1 = fraud, 0 = legitimate or non-fraud)
-
-Algorithms used for modeling:
-Key Points for Choosing Between SVM, Logistic Regression and XGBoost:
-SVM:
-details and comparison goes here
-
-Logistic Regression:
-Simple, interpretable, and fast to train.
-Performs well if the data is linearly separable.
-However, may not perform as well on complex patterns without feature engineering.
-
-XGBoost:
-More complex but can capture non-linear relationships in the data.
-Handles missing values and class imbalance more effectively.
-Might be slower to train but typically yields higher performance, especially on large datasets.
+The purpose of this project is to develop a machine learning model to detect fraudulent credit card transactions and deploy it on AWS SageMaker for production use. The goal is to build a robust model to identify fraud transactions and prevent potential financial loss.
 
 ---
 
-Over-sampling the minority class (fraud): You can duplicate fraud samples to balance the dataset.
-Synthetic data generation (SMOTE): Synthetic Minority Over-sampling Technique (SMOTE) creates synthetic samples of the minority class to balance the dataset.
-Using model techniques: Some models, like Random Forest or XGBoost, have built-in handling for imbalanced data using class weighting.
-undersampling:
-In fraud detection, there is typically a large imbalance between fraud (minority class) and non-fraud (majority class) transactions. In your case, the outputs show:
+### Dataset
 
-Fraud transactions: 2145
-Non-fraud transactions: 553574
-This is highly imbalanced. Machine learning models, particularly classification models like Logistic Regression, tend to perform poorly on imbalanced datasets because they are biased toward the majority class (non-fraud) and may fail to accurately detect fraud.
-code for under-sampling:
-not_fraud = not_fraud.sample(fraud.shape[0])
-df = pd.concat([fraud, not_fraud])
+The dataset used for this project contains simulated credit card transactions, with both legitimate and fraud transactions from the duration of **1st Jan 2019 - 31st Dec 2020**. The dataset includes 1000 customers making transactions with 800 merchants.
 
-The purpose of this code is to balance the class distribution by under-sampling the majority (non-fraud) class. While it may improve model performance on imbalanced data, it can lead to loss of information from the majority class, which might impact the model's ability to generalize well. You should carefully consider the trade-offs or explore alternative methods.
+- [Dataset Link](https://www.kaggle.com/datasets/mlg-ulb/creditcardfraud)
+
+**Columns:**
+
+- `trans_date_trans_time`: Date and time of the transaction
+- `cc_num`: Credit card number (masked)
+- `merchant`: Merchant name
+- `category`: Transaction category
+- `amt`: Transaction amount
+- ... _(other features like customer details, geographical data, etc.)_
+
+The key feature for classification is:
+
+- `is_fraud`: 1 (fraud transaction), 0 (legitimate transaction)
+
+---
+
+### Problem Definition
+
+The objective is to predict whether a transaction is fraudulent (`is_fraud=1`) or legitimate (`is_fraud=0`). This is a **binary classification problem**, and the project involves various steps of data preprocessing, feature engineering, and model building.
+
+---
+
+### Project Structure
+
+1. **Data Preprocessing**:
+
+   - Handled missing values and cleaned irrelevant data.
+   - Balanced the dataset using **undersampling** of the non-fraudulent class:
+     ```python
+     fraud = df[df["is_fraud"] == 1]
+     not_fraud = df[df["is_fraud"] == 0]
+     not_fraud = not_fraud.sample(fraud.shape[0])
+     df = pd.concat([fraud, not_fraud])
+     ```
+
+2. **Exploratory Data Analysis (EDA)**:
+
+   - Calculated the percentage of fraud vs. non-fraud transactions:
+     ```python
+     fraud_ratio = df['is_fraud'].mean() * 100
+     print(f"Fraud transactions percentage: {fraud_ratio:.2f}%")
+     ```
+
+3. **Modeling**:
+
+   - Several algorithms were considered for binary classification, including **Logistic Regression**, **SVM**, and **XGBoost**:
+     - **Logistic Regression** was selected initially for its simplicity and efficiency in binary classification tasks.
+     - **XGBoost** was explored later for improved performance on non-linear relationships and handling class imbalance.
+
+4. **Balancing the Dataset**:
+   Given the significant class imbalance:
+
+   - **Fraud transactions**: 9651
+   - **Non-fraud transactions**: 1842743
+
+   The **undersampling** method was used to balance the majority class (`non-fraud`) and the minority class (`fraud`). This helps the model focus better on identifying frauds but at the cost of some data loss:
+
+   ```python
+   not_fraud = not_fraud.sample(fraud.shape[0])
+   df = pd.concat([fraud, not_fraud])
+   ```
+
+5. **Model Saving**:
+   After training the model (Random Forest or Logistic Regression), it was saved to a folder for future use:
+   ```python
+   import os
+   import joblib
+   os.makedirs('../models', exist_ok=True)
+   joblib.dump(model, '../models/fraud_detection_model.pkl')
+   ```
+
+---
+
+### Model Evaluation and Deployment
+
+The trained model will be evaluated using metrics like **accuracy**, **precision**, **recall**, and **F1-score** to ensure proper detection of fraudulent transactions. Once optimized, it will be deployed on **AWS SageMaker** to enable real-time predictions in a cloud environment.
+
+---
+
+### Techniques Used
+
+- **Under-sampling**: To balance the dataset and prevent the model from being biased towards the non-fraudulent transactions.
+- **Logistic Regression**: A simple and interpretable model for binary classification.
+- **XGBoost**: For handling complex patterns and class imbalance effectively.
+- **AWS SageMaker**: For scalable and secure deployment of the model.
+
+---
+
+### Future Work
+
+- Further optimization of the model using **SMOTE** or other techniques to generate synthetic samples for the minority class (fraud).
+- Deployment and monitoring of the model on **AWS SageMaker** for real-time transaction fraud detection.
+
+---
+
+### Credits
+
+This project was developed using the simulated credit card transaction dataset and inspired by **Brandon Harris**'s Sparkov Data Generation tool on GitHub.
